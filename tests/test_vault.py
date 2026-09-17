@@ -8,8 +8,9 @@ from app.vault import (
     slugify, save_link_to_vault, update_master_index,
     import_vault_to_database, create_vault_briefing
 )
+import app.vault as vault
 from app.models import Link, LinkStatus, LinkType, Highlight
-from app.config import LINKS_VAULT_DIR, VAULT_DIR, BRIEFINGS_VAULT_DIR
+from app.database import save_link
 
 
 def test_slugify():
@@ -38,6 +39,7 @@ def test_save_link_to_vault_and_frontmatter():
         updated_at=now,
     )
 
+    save_link(link)
     file_path = save_link_to_vault(link)
     assert file_path.exists()
 
@@ -61,7 +63,7 @@ def test_save_link_to_vault_and_frontmatter():
 
 def test_master_index_generation():
     update_master_index()
-    index_file = VAULT_DIR / "INDEX.md"
+    index_file = vault.VAULT_DIR / "INDEX.md"
     assert index_file.exists()
     content = index_file.read_text(encoding="utf-8")
     assert "# Link Vault Index" in content
@@ -69,10 +71,9 @@ def test_master_index_generation():
 
 
 def test_create_vault_briefing():
-    import app.config as cfg
     briefing_file = create_vault_briefing(days=30, title="Monthly Research Review", custom_notes="Testing briefing synthesis.")
     assert briefing_file.exists()
-    assert briefing_file.parent == cfg.BRIEFINGS_VAULT_DIR
+    assert briefing_file.parent == vault.BRIEFINGS_VAULT_DIR
 
     post = frontmatter.load(briefing_file)
     assert post.metadata["title"] == "Monthly Research Review"
