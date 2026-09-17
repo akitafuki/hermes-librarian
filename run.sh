@@ -15,12 +15,17 @@ else
 fi
 
 PORT="${HLIB_PORT:-8090}"
-HOST="${HLIB_HOST:-127.0.0.1}"
+HOST="${HLIB_HOST:-0.0.0.0}"
+
+LAN_IP=$(hostname -I 2>/dev/null | awk '{print $1}')
 
 echo "════════════════════════════════════════════════════════"
 echo "  🚀 Launching Hermes Librarian"
 echo "════════════════════════════════════════════════════════"
-echo "  Dashboard URL: http://$HOST:$PORT"
+echo "  Local URL:     http://localhost:$PORT"
+if [ -n "$LAN_IP" ]; then
+echo "  LAN Access:    http://$LAN_IP:$PORT"
+fi
 echo "  Data Dir:      $DIR/data"
 echo "  Vault Dir:     $DIR/data/vault"
 echo "  Database:      $DIR/data/links.db"

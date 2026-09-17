@@ -28,11 +28,15 @@ python3 -c "from app.config import ensure_directories; from app.database import 
 python3 cli.py stats
 ```
 
-### Launch the Web Service
+### Launch the Service & Web Dashboard
 ```bash
+# Option A: Run 24/7 in background as a systemd user service
+./install-service.sh
+
+# Option B: Run interactively in the active terminal
 ./run.sh
-# Server starts at http://127.0.0.1:8090
 ```
+Server binds by default to `0.0.0.0:8090` (accessible via `http://localhost:8090` or `http://<lan-ip>:8090`).
 
 ### Verify Service Health
 ```bash
@@ -73,6 +77,7 @@ hermes-librarian/
 ├── requirements.txt          # Python dependencies
 ├── setup.sh                  # Automated setup script
 ├── run.sh                    # Automated service launcher
+├── install-service.sh        # Persistent systemd background service manager
 └── install-hermes-profile.sh # Automated Hermes profile installer
 ```
 
@@ -85,7 +90,7 @@ All settings can be customized via environment variables:
 | Variable | Default Value | Description |
 | :--- | :--- | :--- |
 | `HLIB_ROOT` | Repository Root Path | Used by skill scripts to locate `cli.py` and `.venv` |
-| `HLIB_HOST` | `127.0.0.1` | Bind host for the web server |
+| `HLIB_HOST` | `0.0.0.0` | Bind host for the web server (accessible locally and on LAN) |
 | `HLIB_PORT` | `8090` | Bind port for the web server |
 | `HLIB_API_KEY` | `None` (disabled) | Optional API key. When set, mutations require `Authorization: Bearer <key>` |
 | `HLIB_DATA_DIR` | `<HLIB_ROOT>/data` | Directory where database and vault are stored |

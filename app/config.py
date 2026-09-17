@@ -18,7 +18,7 @@ SNAPSHOTS_DIR = ASSETS_VAULT_DIR / "snapshots"
 DB_PATH = Path(os.environ.get("HLIB_DB_PATH", DATA_DIR / "links.db")).resolve()
 
 # Server configuration
-APP_HOST = os.environ.get("HLIB_HOST", "127.0.0.1")
+APP_HOST = os.environ.get("HLIB_HOST", "0.0.0.0")
 APP_PORT = int(os.environ.get("HLIB_PORT", "8090"))
 HLIB_API_KEY = os.environ.get("HLIB_API_KEY", "").strip() or None
 APP_TITLE = "Hermes Librarian"

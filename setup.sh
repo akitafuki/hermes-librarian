@@ -57,14 +57,17 @@ if [ "$1" = "--hermes" ] || [ "$1" = "--profile" ]; then
     "$DIR/install-hermes-profile.sh"
 fi
 
+# 7. Optional: Install as persistent systemd background service
+if [ "$1" = "--service" ] || [ "$2" = "--service" ]; then
+    echo ""
+    "$DIR/install-service.sh"
+fi
+
 echo "========================================================"
 echo "  ✅ Hermes Librarian is ready!"
 echo "========================================================"
-echo "  Start Web Dashboard : ./run.sh"
-echo "  Or via CLI          : source .venv/bin/activate && python cli.py serve --port 8090"
-echo "  Add a link          : python cli.py add \"<URL>\" --tags \"ai, research\""
+echo "  Run as 24/7 Service : ./install-service.sh"
+echo "  Or run in foreground: ./run.sh"
+echo "  Add a link via CLI  : source .venv/bin/activate && python cli.py add \"<URL>\""
 echo "  Search links        : python cli.py list -q \"<query>\""
-if command -v hermes >/dev/null 2>&1 || [ -x "$HOME/.local/bin/hermes" ]; then
-    echo "  Hermes Profile      : ./install-hermes-profile.sh"
-fi
 echo "========================================================"

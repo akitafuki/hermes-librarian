@@ -186,8 +186,38 @@ document.addEventListener('keydown', (e) => {
 });
 
 // 7. Bookmarklet Modal
+function updateBookmarkletCode() {
+  const btn = document.getElementById('bookmarklet-btn');
+  const serverInput = document.getElementById('bookmarklet-server-url');
+  if (!btn) return;
+
+  const serverOrigin = (serverInput && serverInput.value.trim()) 
+    ? serverInput.value.trim().replace(/\/+$/, '') 
+    : window.location.origin;
+
+  const token = localStorage.getItem('hlib_api_key');
+  const tokenParam = token ? `+'&api_key=${encodeURIComponent(token)}'` : "''";
+
+  const code = `javascript:(function(){const u=encodeURIComponent(location.href),t=encodeURIComponent(document.title),q=encodeURIComponent(window.getSelection().toString());window.open('${serverOrigin}/bookmarklet?url='+u+'&title='+t+'&quote='+q${tokenParam !== "''" ? '+' + tokenParam : ''},'_blank','width=480,height=380');})();`;
+
+  btn.setAttribute('href', code);
+}
+
+function resetBookmarkletServerUrl() {
+  const serverInput = document.getElementById('bookmarklet-server-url');
+  if (serverInput) {
+    serverInput.value = window.location.origin;
+    updateBookmarkletCode();
+  }
+}
+
 function openBookmarkletModal() {
   const modal = document.getElementById('bookmarklet-modal');
+  const serverInput = document.getElementById('bookmarklet-server-url');
+  if (serverInput && !serverInput.value) {
+    serverInput.value = window.location.origin;
+  }
+  updateBookmarkletCode();
   if (modal) {
     modal.classList.remove('hidden');
     modal.classList.add('flex');
@@ -273,4 +303,5 @@ async function handleImportBookmarks(event) {
 // Initialize on DOM load
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
+  updateBookmarkletCode();
 });

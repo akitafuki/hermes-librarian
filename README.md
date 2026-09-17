@@ -62,11 +62,26 @@ Archive any link into an **Obsidian-compatible Markdown vault**, extract **clean
 
 > 🤖 **For AI Agents**: See the comprehensive [AGENT_GUIDE.md](AGENT_GUIDE.md) for full setup instructions, Hermes skill integration, and API/CLI documentation.
 
-### Run the Web Dashboard
+### Run the Web Dashboard & API
+
+**Option A: 24/7 Background Service (Recommended for Linux/Servers)**
+```bash
+./install-service.sh
+```
+Installs a systemd user service that starts automatically on boot and runs in the background.
+- Check status: `./install-service.sh status`
+- View live logs: `./install-service.sh logs`
+- Restart: `./install-service.sh restart`
+- Stop: `./install-service.sh stop`
+
+**Option B: Run in Foreground Terminal**
 ```bash
 ./run.sh
 ```
-Open your browser at **`http://localhost:8090`**.
+
+By default, Hermes Librarian binds to `0.0.0.0:8090` so it is accessible locally and across your LAN:
+- Local URL: **`http://localhost:8090`**
+- LAN Access: **`http://<server-ip>:8090`** (from laptops, phones, or remote Hermes instances)
 
 ---
 
@@ -174,7 +189,7 @@ The service exposes a complete REST API on port `8090`:
 | Variable | Default Value | Description |
 | :--- | :--- | :--- |
 | `HLIB_PORT` | `8090` | Web dashboard & API bind port |
-| `HLIB_HOST` | `127.0.0.1` | Bind host address |
+| `HLIB_HOST` | `0.0.0.0` | Bind host address (accessible locally and on LAN) |
 | `HLIB_API_KEY` | `None` (disabled) | Optional secret token for API authentication |
 | `HLIB_ROOT` | Repository Root | Path used by skill scripts to locate CLI and virtualenv |
 | `HLIB_DATA_DIR` | `<HLIB_ROOT>/data` | Directory where database and vault are stored |
