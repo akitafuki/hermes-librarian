@@ -44,9 +44,17 @@
       }
 
       try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const apiKey = urlParams.get('api_key') || localStorage.getItem('hlib_api_key');
+        const headers = { 'Content-Type': 'application/json' };
+        if (apiKey) {
+          headers['Authorization'] = `Bearer ${apiKey}`;
+          headers['X-API-Key'] = apiKey;
+        }
+
         const res = await fetch('/api/links', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: headers,
           body: JSON.stringify({
             url: url,
             title: title || undefined,

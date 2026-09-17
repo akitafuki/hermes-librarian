@@ -234,10 +234,37 @@
         Save any webpage or selected text quote directly to your local Hermes Librarian with a single click from Chrome, Safari, Firefox, or Brave!
       </p>
 
+      <div class="mb-4 text-left">
+        <label for="bookmarklet-server-url" class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">
+          Server Address (LAN / Remote Host):
+        </label>
+        <div class="flex items-center space-x-2">
+          <input 
+            type="text" 
+            id="bookmarklet-server-url" 
+            placeholder="http://192.168.1.100:8090"
+            class="flex-1 px-3 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono"
+            oninput="updateBookmarkletCode()"
+          />
+          <button 
+            type="button" 
+            onclick="resetBookmarkletServerUrl()" 
+            class="px-2.5 py-1.5 text-[11px] bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 font-medium transition"
+            title="Reset to current browser address"
+          >
+            Auto-Detect
+          </button>
+        </div>
+        <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-1">
+          Defaults to this browser's address. Change to your LAN IP if accessing from another device.
+        </p>
+      </div>
+
       <div class="p-4 bg-slate-100 dark:bg-slate-800 rounded-xl text-center border-2 border-dashed border-slate-300 dark:border-slate-700 mb-4">
         <p class="text-xs text-slate-500 dark:text-slate-400 mb-2 font-medium">Drag this button to your Bookmarks Bar:</p>
         <a 
-          href="javascript:(function(){const u=encodeURIComponent(location.href),t=encodeURIComponent(document.title),q=encodeURIComponent(window.getSelection().toString());window.open('http://127.0.0.1:8090/bookmarklet?url='+u+'&title='+t+'&quote='+q,'_blank','width=480,height=380');})();"
+          id="bookmarklet-btn"
+          href="#"
           class="inline-block px-4 py-2 rounded-lg bg-blue-600 text-white font-bold text-xs shadow hover:bg-blue-700 transition cursor-grab"
           onclick="alert('Drag this button directly to your browser bookmarks bar!'); return false;"
         >
