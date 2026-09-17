@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Knowledge Graph — Hermes Librarian{% endblock %}
+
+{% block head_extra %}
+<!-- D3.js v7 -->
+<script src="https://d3js.org/d3.v7.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="flex flex-col h-[calc(100vh-10rem)] space-y-3">
+  
+  <!-- Graph Controls & Legend -->
+  <div class="flex flex-wrap items-center justify-between gap-3 p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+    
+    <!-- Search Node -->
+    <div class="relative w-64">
+      <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+      <input 
+        type="text" 
+        id="graph-search" 
+        placeholder="Filter nodes by name..." 
+        class="w-full pl-8 pr-3 py-1 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
+      />
+    </div>
+
+    <!-- Color Legend -->
+    <div class="flex items-center space-x-4 text-xs text-slate-600 dark:text-slate-400">
+      <span class="inline-flex items-center">
+        <span class="w-2.5 h-2.5 rounded-full bg-violet-500 mr-1.5"></span> Tag
+      </span>
+      <span class="inline-flex items-center">
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 mr-1.5"></span> Domain
+      </span>
+      <span class="inline-flex items-center">
+        <span class="w-2.5 h-2.5 rounded-full bg-blue-500 mr-1.5"></span> Article
+      </span>
+      <span class="inline-flex items-center">
+        <span class="w-2.5 h-2.5 rounded-full bg-slate-900 dark:bg-slate-300 mr-1.5"></span> GitHub
+      </span>
+      <span class="inline-flex items-center">
+        <span class="w-2.5 h-2.5 rounded-full bg-amber-500 mr-1.5"></span> Paper
+      </span>
+      <span class="inline-flex items-center">
+        <span class="w-2.5 h-2.5 rounded-full bg-rose-500 mr-1.5"></span> Video
+      </span>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex items-center space-x-2">
+      <button 
+        id="graph-reset-btn" 
+        class="px-2.5 py-1 text-xs font-medium rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition"
+      >
+        <i data-lucide="maximize-2" class="w-3.5 h-3.5 inline-block mr-1"></i> Reset View
+      </button>
+    </div>
+
+  </div>
+
+  <!-- Graph Container Canvas -->
+  <div class="relative flex-1 w-full bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+    <div id="graph-container" class="w-full h-full"></div>
+
+    <!-- Hint overlay -->
+    <div class="absolute bottom-3 left-3 bg-white/90 dark:bg-slate-800/90 backdrop-blur px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-[11px] text-slate-500 dark:text-slate-400 pointer-events-none">
+      <span><strong>Tip:</strong> Click node to highlight connections • Double-click link to open URL</span>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/graph.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    renderGraph('graph-container');
+  });
+</script>
+{% endblock %}

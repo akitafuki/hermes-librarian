@@ -1,0 +1,187 @@
+/* Custom theme variables and styling for Hermes Librarian */
+:root {
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-serif: 'Lora', 'Merriweather', Georgia, Cambria, serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+/* Light & Dark mode transitions */
+body {
+  font-family: var(--font-sans);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Smooth line-clamp utility */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Reader Mode Typography */
+.reader-content {
+  font-size: 1.125rem;
+  line-height: 1.8;
+}
+
+.reader-content p {
+  margin-bottom: 1.5rem;
+}
+
+.reader-content h1,
+.reader-content h2,
+.reader-content h3,
+.reader-content h4 {
+  font-weight: 700;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  line-height: 1.3;
+}
+
+.reader-content h1 { font-size: 1.875rem; }
+.reader-content h2 { font-size: 1.5rem; border-bottom: 1px solid rgba(156, 163, 175, 0.2); padding-bottom: 0.5rem; }
+.reader-content h3 { font-size: 1.25rem; }
+
+.reader-content pre {
+  background-color: #1e293b;
+  color: #f8fafc;
+  padding: 1.25rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+}
+
+.reader-content code {
+  font-family: var(--font-mono);
+  background-color: rgba(156, 163, 175, 0.15);
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.25rem;
+  font-size: 0.9em;
+}
+
+.reader-content pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
+.reader-content blockquote {
+  border-left: 4px solid #3b82f6;
+  padding-left: 1rem;
+  margin: 1.5rem 0;
+  color: #64748b;
+  font-style: italic;
+}
+
+.dark .reader-content blockquote {
+  color: #94a3b8;
+}
+
+.reader-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  margin: 1.5rem auto;
+  display: block;
+}
+
+.reader-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+}
+
+.reader-content th,
+.reader-content td {
+  border: 1px solid rgba(156, 163, 175, 0.2);
+  padding: 0.75rem;
+  text-align: left;
+}
+
+.reader-content th {
+  background-color: rgba(156, 163, 175, 0.1);
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.3);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.5);
+}
+
+/* ── Reader Mode Color Themes ── */
+body.reader-theme-sepia {
+  background-color: #f6eedb !important;
+}
+body.reader-theme-sepia #reader-container {
+  background-color: #fbf3e4 !important;
+  border-color: #e5d8be !important;
+  box-shadow: 0 4px 20px rgba(92, 75, 55, 0.08) !important;
+}
+body.reader-theme-sepia #reader-container header {
+  border-color: #e5d8be !important;
+}
+body.reader-theme-sepia #reader-body,
+body.reader-theme-sepia #reader-body p,
+body.reader-theme-sepia #reader-body li,
+body.reader-theme-sepia #reader-container p {
+  color: #48392b !important;
+}
+body.reader-theme-sepia #reader-container h1,
+body.reader-theme-sepia #reader-container h2,
+body.reader-theme-sepia #reader-container h3,
+body.reader-theme-sepia #reader-container strong {
+  color: #2b1f13 !important;
+}
+body.reader-theme-sepia #reader-container a {
+  color: #935a1f !important;
+}
+body.reader-theme-sepia #reader-container blockquote {
+  border-left-color: #c49a5b !important;
+  color: #6b5641 !important;
+}
+
+body.reader-theme-oled {
+  background-color: #000000 !important;
+}
+body.reader-theme-oled #reader-container {
+  background-color: #050505 !important;
+  border-color: #1a1a1a !important;
+}
+body.reader-theme-oled #reader-container header {
+  border-color: #1a1a1a !important;
+}
+body.reader-theme-oled #reader-body,
+body.reader-theme-oled #reader-body p,
+body.reader-theme-oled #reader-body li,
+body.reader-theme-oled #reader-container p {
+  color: #cbd5e1 !important;
+}
+body.reader-theme-oled #reader-container h1,
+body.reader-theme-oled #reader-container h2,
+body.reader-theme-oled #reader-container h3,
+body.reader-theme-oled #reader-container strong {
+  color: #ffffff !important;
+}
+body.reader-theme-oled #reader-container blockquote {
+  border-left-color: #3b82f6 !important;
+  color: #94a3b8 !important;
+}

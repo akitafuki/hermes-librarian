@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Hermes Librarian{% endblock %}</title>
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" />
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/static/css/style.css" />
+  {% block head_extra %}{% endblock %}
+</head>
+<body class="h-full flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 antialiased selection:bg-blue-500 selection:text-white">
+
+  <!-- Top Navbar -->
+  <header class="sticky top-0 z-30 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        
+        <!-- Logo & Brand -->
+        <div class="flex items-center space-x-3">
+          <a href="/" class="flex items-center space-x-2.5 group">
+            <div class="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-sm shadow-blue-500/30 group-hover:scale-105 transition-transform">
+              <i data-lucide="bookmark" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <span class="font-bold text-base tracking-tight text-slate-900 dark:text-white">Hermes</span>
+              <span class="text-xs font-semibold text-blue-600 dark:text-blue-400 block -mt-1 uppercase tracking-wider">Librarian</span>
+            </div>
+          </a>
+
+          <!-- View Tabs Navigation -->
+          <nav class="hidden md:flex items-center ml-8 space-x-1">
+            <a href="/" class="px-3 py-1.5 rounded-md text-sm font-medium transition-colors {% if current_page == 'grid' %}bg-blue-50 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300{% else %}text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800{% endif %}">
+              <i data-lucide="layout-grid" class="w-4 h-4 inline-block mr-1"></i> Cards
+            </a>
+            <a href="/list" class="px-3 py-1.5 rounded-md text-sm font-medium transition-colors {% if current_page == 'list' %}bg-blue-50 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300{% else %}text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800{% endif %}">
+              <i data-lucide="list" class="w-4 h-4 inline-block mr-1"></i> List
+            </a>
+            <a href="/kanban" class="px-3 py-1.5 rounded-md text-sm font-medium transition-colors {% if current_page == 'kanban' %}bg-blue-50 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300{% else %}text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800{% endif %}">
+              <i data-lucide="columns-3" class="w-4 h-4 inline-block mr-1"></i> Board
+            </a>
+            <a href="/calendar" class="px-3 py-1.5 rounded-md text-sm font-medium transition-colors {% if current_page == 'calendar' %}bg-blue-50 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300{% else %}text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800{% endif %}">
+              <i data-lucide="calendar" class="w-4 h-4 inline-block mr-1"></i> Calendar
+            </a>
+            <a href="/graph" class="px-3 py-1.5 rounded-md text-sm font-medium transition-colors {% if current_page == 'graph' %}bg-blue-50 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300{% else %}text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800{% endif %}">
+              <i data-lucide="share-2" class="w-4 h-4 inline-block mr-1"></i> Graph
+            </a>
+          </nav>
+        </div>
+
+        <!-- Search & Actions -->
+        <div class="flex items-center space-x-2 sm:space-x-3">
+          
+          <!-- Search input form -->
+          <form action="/" method="GET" class="relative hidden sm:block w-40 lg:w-56">
+            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+            <input 
+              type="text" 
+              name="q" 
+              id="search-input"
+              value="{{ q or '' }}"
+              placeholder="Search links... (/)" 
+              class="w-full pl-9 pr-7 py-1.5 text-xs bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-slate-200 placeholder-slate-400 transition"
+            />
+            <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-mono font-medium text-slate-400 border border-slate-300 dark:border-slate-600 rounded px-1">/</span>
+          </form>
+
+          <!-- Quick Add Button -->
+          <button 
+            onclick="openAddModal()" 
+            class="inline-flex items-center px-3 py-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 rounded-lg shadow-sm shadow-blue-500/20 transition cursor-pointer"
+            title="Add link (press 'c')"
+          >
+            <i data-lucide="plus" class="w-3.5 h-3.5 mr-1"></i> Add Link
+          </button>
+
+          <!-- Bookmarklet Button -->
+          <button 
+            onclick="openBookmarkletModal()"
+            class="hidden md:inline-flex items-center px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition"
+            title="1-Click Browser Bookmarklet"
+          >
+            <i data-lucide="sparkles" class="w-3.5 h-3.5 mr-1 text-amber-500"></i> Bookmarklet
+          </button>
+
+          <!-- Import / Export Button -->
+          <button 
+            onclick="openImportExportModal()"
+            class="hidden sm:inline-flex items-center px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition"
+            title="Import / Export"
+          >
+            <i data-lucide="arrow-up-down" class="w-3.5 h-3.5 mr-1 text-blue-500"></i> Data
+          </button>
+
+          <!-- Sync Vault Button -->
+          <button 
+            id="sync-vault-btn"
+            onclick="syncVault()" 
+            class="inline-flex items-center p-1.5 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition"
+            title="Re-index / Sync with Obsidian Vault"
+          >
+            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+          </button>
+
+          <!-- Dark/Light Theme Toggle -->
+          <button 
+            onclick="toggleTheme()" 
+            class="p-1.5 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition cursor-pointer"
+            title="Toggle theme"
+          >
+            <i data-lucide="moon" class="w-4 h-4 hidden dark:inline-block"></i>
+            <i data-lucide="sun" class="w-4 h-4 inline-block dark:hidden"></i>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="mt-auto border-t border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 py-4 text-xs text-slate-500 dark:text-slate-400">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <div class="flex items-center space-x-4">
+        <span><strong>{{ stats.total_links }}</strong> links</span>
+        <span>•</span>
+        <span><strong>{{ stats.total_highlights }}</strong> highlights</span>
+        <span>•</span>
+        <span><strong>{{ "{:,}".format(stats.total_words_archived) }}</strong> words stored</span>
+        <span>•</span>
+        <span class="inline-flex items-center text-emerald-600 dark:text-emerald-400">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span> Vault Synced
+        </span>
+      </div>
+      <div class="flex items-center space-x-2">
+        <span>Obsidian compatible</span>
+        <span>•</span>
+        <a href="https://github.com/NousResearch/hermes-agent" target="_blank" class="hover:underline text-slate-600 dark:text-slate-300">Hermes Agent Ecosystem</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ── Modals ── -->
+
+  <!-- 1. Quick Add Modal -->
+  <div id="add-link-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-800 max-w-md w-full p-6 relative animate-in fade-in zoom-in-95 duration-150">
+      <button onclick="closeAddModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+      <div class="flex items-center space-x-2.5 mb-4">
+        <div class="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+          <i data-lucide="link-2" class="w-4 h-4"></i>
+        </div>
+        <h3 class="font-bold text-lg text-slate-900 dark:text-white">Archive New Link</h3>
+      </div>
+      <form onsubmit="handleAddLink(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">URL</label>
+          <input type="url" id="add-url-input" required placeholder="https://example.com/article" class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-white placeholder-slate-400" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">Tags (optional)</label>
+          <input type="text" id="add-tags-input" placeholder="ai, dev-tools, design" class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-white placeholder-slate-400" />
+          <p class="text-[11px] text-slate-400 mt-1">Comma or space-separated tags (auto-detected if empty)</p>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">Reading Status</label>
+          <select id="add-status-select" class="w-full px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-white">
+            <option value="inbox">Inbox (to review)</option>
+            <option value="reading">Reading (in progress)</option>
+            <option value="archived">Archived (completed)</option>
+            <option value="favorite">Favorite (starred)</option>
+          </select>
+        </div>
+        <div id="add-modal-error" class="hidden p-2.5 rounded-lg bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-900 text-xs text-red-600 dark:text-red-400"></div>
+        <div class="flex items-center justify-end space-x-2 pt-2">
+          <button type="button" onclick="closeAddModal()" class="px-4 py-2 text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white">Cancel</button>
+          <button type="submit" id="add-submit-btn" class="inline-flex items-center px-4 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm shadow-blue-500/20 transition">
+            <span id="add-spinner" class="hidden mr-2"><svg class="animate-spin h-3.5 w-3.5 text-white" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg></span>
+            Archive &amp; Save
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. Bookmarklet Modal -->
+  <div id="bookmarklet-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-800 max-w-md w-full p-6 relative">
+      <button onclick="closeBookmarkletModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+      <div class="flex items-center space-x-2.5 mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+          <i data-lucide="sparkles" class="w-4 h-4"></i>
+        </div>
+        <h3 class="font-bold text-lg text-slate-900 dark:text-white">1-Click Browser Bookmarklet</h3>
+      </div>
+      <p class="text-xs text-slate-600 dark:text-slate-400 mb-4 leading-relaxed">
+        Save any webpage or selected text quote directly to your local Hermes Librarian with a single click from Chrome, Safari, Firefox, or Brave!
+      </p>
+
+      <div class="p-4 bg-slate-100 dark:bg-slate-800 rounded-xl text-center border-2 border-dashed border-slate-300 dark:border-slate-700 mb-4">
+        <p class="text-xs text-slate-500 dark:text-slate-400 mb-2 font-medium">Drag this button to your Bookmarks Bar:</p>
+        <a 
+          href="javascript:(function(){const u=encodeURIComponent(location.href),t=encodeURIComponent(document.title),q=encodeURIComponent(window.getSelection().toString());window.open('http://127.0.0.1:8090/bookmarklet?url='+u+'&title='+t+'&quote='+q,'_blank','width=480,height=380');})();"
+          class="inline-block px-4 py-2 rounded-lg bg-blue-600 text-white font-bold text-xs shadow hover:bg-blue-700 transition cursor-grab"
+          onclick="alert('Drag this button directly to your browser bookmarks bar!'); return false;"
+        >
+          🔖 Save to Hermes
+        </a>
+      </div>
+
+      <div class="text-[11px] text-slate-500 dark:text-slate-400 space-y-1">
+        <p><strong>Tip:</strong> If you select text on a webpage before clicking the bookmarklet, it will automatically save your selection as a quote!</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Import & Export Modal -->
+  <div id="import-export-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-800 max-w-md w-full p-6 relative">
+      <button onclick="closeImportExportModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+      <div class="flex items-center space-x-2.5 mb-4">
+        <div class="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+          <i data-lucide="arrow-up-down" class="w-4 h-4"></i>
+        </div>
+        <h3 class="font-bold text-lg text-slate-900 dark:text-white">Import &amp; Export Data</h3>
+      </div>
+
+      <!-- Import Section -->
+      <div class="mb-5 pb-5 border-b border-slate-200 dark:border-slate-800">
+        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">Import Bookmarks</h4>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">Upload Chrome/Safari/Firefox HTML bookmarks or CSV export:</p>
+        <form onsubmit="handleImportBookmarks(event)" class="flex items-center space-x-2">
+          <input type="file" id="import-file-input" required accept=".html,.htm,.csv" class="text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-medium file:bg-slate-100 dark:file:bg-slate-800 file:text-slate-700 dark:file:text-slate-300 hover:file:bg-slate-200" />
+          <button type="submit" id="import-submit-btn" class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs transition">
+            Import
+          </button>
+        </form>
+        <div id="import-status" class="hidden mt-2 text-xs font-medium"></div>
+      </div>
+
+      <!-- Export Section -->
+      <div>
+        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">Export Data</h4>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">Download your archive in standard open formats:</p>
+        <div class="grid grid-cols-3 gap-2">
+          <a href="/api/export/json" class="flex flex-col items-center justify-center p-3 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 transition text-center">
+            <i data-lucide="file-json" class="w-5 h-5 text-amber-500 mb-1"></i>
+            <span class="text-xs font-medium">JSON Dump</span>
+          </a>
+          <a href="/api/export/csv" class="flex flex-col items-center justify-center p-3 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 transition text-center">
+            <i data-lucide="file-spreadsheet" class="w-5 h-5 text-emerald-500 mb-1"></i>
+            <span class="text-xs font-medium">CSV Table</span>
+          </a>
+          <a href="/api/export/zip" class="flex flex-col items-center justify-center p-3 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 transition text-center">
+            <i data-lucide="folder-archive" class="w-5 h-5 text-blue-500 mb-1"></i>
+            <span class="text-xs font-medium">Vault (.zip)</span>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="/static/js/app.js"></script>
+  <script>lucide.createIcons();</script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

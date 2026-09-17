@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}Reading Board — Hermes Librarian{% endblock %}
+
+{% block content %}
+<div class="space-y-4">
+  
+  <div class="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
+    <div>
+      <h2 class="text-base font-bold text-slate-900 dark:text-white">Reading Workflow Board</h2>
+      <p class="text-xs text-slate-500 dark:text-slate-400">Track and triage links through your reading pipeline.</p>
+    </div>
+  </div>
+
+  <!-- 4 Columns Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+    
+    <!-- 1. INBOX -->
+    <div class="flex flex-col bg-slate-100/70 dark:bg-slate-900/60 rounded-xl p-3.5 border border-slate-200 dark:border-slate-800/80 min-h-[500px]">
+      <div class="flex items-center justify-between mb-3 px-1">
+        <div class="flex items-center space-x-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+          <h3 class="font-bold text-xs uppercase tracking-wider text-slate-700 dark:text-slate-300">Inbox</h3>
+        </div>
+        <span class="text-xs font-mono font-semibold px-2 py-0.5 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 shadow-sm">
+          {{ inbox|length }}
+        </span>
+      </div>
+
+      <div class="space-y-3 flex-1 overflow-y-auto max-h-[70vh] pr-1">
+        {% for item in inbox %}
+        {% include "components/kanban_card.html" %}
+        {% else %}
+        <div class="text-center py-8 text-xs text-slate-400 border border-dashed border-slate-300 dark:border-slate-800 rounded-lg">
+          No new links
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- 2. READING -->
+    <div class="flex flex-col bg-slate-100/70 dark:bg-slate-900/60 rounded-xl p-3.5 border border-slate-200 dark:border-slate-800/80 min-h-[500px]">
+      <div class="flex items-center justify-between mb-3 px-1">
+        <div class="flex items-center space-x-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+          <h3 class="font-bold text-xs uppercase tracking-wider text-slate-700 dark:text-slate-300">Reading</h3>
+        </div>
+        <span class="text-xs font-mono font-semibold px-2 py-0.5 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 shadow-sm">
+          {{ reading|length }}
+        </span>
+      </div>
+
+      <div class="space-y-3 flex-1 overflow-y-auto max-h-[70vh] pr-1">
+        {% for item in reading %}
+        {% include "components/kanban_card.html" %}
+        {% else %}
+        <div class="text-center py-8 text-xs text-slate-400 border border-dashed border-slate-300 dark:border-slate-800 rounded-lg">
+          Nothing in progress
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- 3. FAVORITES -->
+    <div class="flex flex-col bg-slate-100/70 dark:bg-slate-900/60 rounded-xl p-3.5 border border-slate-200 dark:border-slate-800/80 min-h-[500px]">
+      <div class="flex items-center justify-between mb-3 px-1">
+        <div class="flex items-center space-x-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+          <h3 class="font-bold text-xs uppercase tracking-wider text-slate-700 dark:text-slate-300">Favorites</h3>
+        </div>
+        <span class="text-xs font-mono font-semibold px-2 py-0.5 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 shadow-sm">
+          {{ favorite|length }}
+        </span>
+      </div>
+
+      <div class="space-y-3 flex-1 overflow-y-auto max-h-[70vh] pr-1">
+        {% for item in favorite %}
+        {% include "components/kanban_card.html" %}
+        {% else %}
+        <div class="text-center py-8 text-xs text-slate-400 border border-dashed border-slate-300 dark:border-slate-800 rounded-lg">
+          No favorites starred
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- 4. ARCHIVED -->
+    <div class="flex flex-col bg-slate-100/70 dark:bg-slate-900/60 rounded-xl p-3.5 border border-slate-200 dark:border-slate-800/80 min-h-[500px]">
+      <div class="flex items-center justify-between mb-3 px-1">
+        <div class="flex items-center space-x-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+          <h3 class="font-bold text-xs uppercase tracking-wider text-slate-700 dark:text-slate-300">Archived</h3>
+        </div>
+        <span class="text-xs font-mono font-semibold px-2 py-0.5 rounded-full bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 shadow-sm">
+          {{ archived|length }}
+        </span>
+      </div>
+
+      <div class="space-y-3 flex-1 overflow-y-auto max-h-[70vh] pr-1">
+        {% for item in archived %}
+        {% include "components/kanban_card.html" %}
+        {% else %}
+        <div class="text-center py-8 text-xs text-slate-400 border border-dashed border-slate-300 dark:border-slate-800 rounded-lg">
+          Archive is empty
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

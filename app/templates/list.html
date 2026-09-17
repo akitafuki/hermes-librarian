@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block title %}List View — Hermes Librarian{% endblock %}
+
+{% block content %}
+<div class="space-y-4">
+
+  <!-- Header Controls -->
+  <div class="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
+    <div class="flex items-center space-x-2">
+      <span class="text-sm font-semibold text-slate-900 dark:text-white">All Records</span>
+      <span class="text-xs px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-mono">{{ total }} items</span>
+    </div>
+
+    <!-- Quick Status filter tabs -->
+    <div class="flex items-center space-x-1 text-xs">
+      <a href="/list" class="px-2.5 py-1 rounded {% if not selected_status %}bg-slate-900 text-white dark:bg-white dark:text-slate-900{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800{% endif %}">All</a>
+      <a href="/list?status=inbox" class="px-2.5 py-1 rounded {% if selected_status == 'inbox' %}bg-blue-600 text-white{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800{% endif %}">Inbox</a>
+      <a href="/list?status=reading" class="px-2.5 py-1 rounded {% if selected_status == 'reading' %}bg-amber-600 text-white{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800{% endif %}">Reading</a>
+      <a href="/list?status=favorite" class="px-2.5 py-1 rounded {% if selected_status == 'favorite' %}bg-rose-600 text-white{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800{% endif %}">Favorite</a>
+      <a href="/list?status=archived" class="px-2.5 py-1 rounded {% if selected_status == 'archived' %}bg-emerald-600 text-white{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800{% endif %}">Archived</a>
+    </div>
+  </div>
+
+  {% if items %}
+  <!-- Compact Table -->
+  <div class="overflow-x-auto bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+    <table class="w-full text-left border-collapse text-xs">
+      <thead>
+        <tr class="border-b border-slate-200 dark:border-slate-800 bg-slate-50/75 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 font-medium">
+          <th class="py-3 px-4">Title</th>
+          <th class="py-3 px-3">Domain</th>
+          <th class="py-3 px-3">Type</th>
+          <th class="py-3 px-3">Tags</th>
+          <th class="py-3 px-3">Status</th>
+          <th class="py-3 px-3">Read Time</th>
+          <th class="py-3 px-3">Added</th>
+          <th class="py-3 px-3 text-right">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100 dark:divide-slate-800/80">
+        {% for item in items %}
+        <tr id="link-item-{{ item.id }}" class="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition">
+          
+          <!-- Title & Favicon -->
+          <td class="py-3 px-4 max-w-sm">
+            <div class="flex items-center space-x-2">
+              {% if item.favicon %}
+              <img src="{{ item.favicon }}" alt="" class="w-4 h-4 rounded shrink-0" onerror="this.style.display='none'" />
+              {% endif %}
+              <a href="/reader/{{ item.id }}" class="font-medium text-slate-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 truncate">
+                {{ item.title }}
+              </a>
+            </div>
+          </td>
+
+          <!-- Domain -->
+          <td class="py-3 px-3 text-slate-500 whitespace-nowrap">
+            <a href="/list?domain={{ item.domain }}" class="hover:underline">
+              {{ item.domain }}
+            </a>
+          </td>
+
+          <!-- Type -->
+          <td class="py-3 px-3 whitespace-nowrap">
+            <span class="px-1.5 py-0.5 rounded text-[10px] font-mono uppercase bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+              {{ item.entry_type.value }}
+            </span>
+          </td>
+
+          <!-- Tags -->
+          <td class="py-3 px-3">
+            <div class="flex flex-wrap gap-1 max-w-xs">
+              {% for t in item.tags[:3] %}
+              <a href="/list?tag={{ t }}" class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-blue-600">
+                #{{ t }}
+              </a>
+              {% endfor %}
+            </div>
+          </td>
+
+          <!-- Status Dropdown -->
+          <td class="py-3 px-3 whitespace-nowrap">
+            <select 
+              onchange="updateLinkStatus('{{ item.id }}', this.value)"
+              class="text-[11px] font-medium py-1 px-1.5 rounded border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 focus:outline-none"
+            >
+              <option value="inbox" {% if item.status.value == 'inbox' %}selected{% endif %}>📥 Inbox</option>
+              <option value="reading" {% if item.status.value == 'reading' %}selected{% endif %}>📖 Reading</option>
+              <option value="archived" {% if item.status.value == 'archived' %}selected{% endif %}>📦 Archived</option>
+              <option value="favorite" {% if item.status.value == 'favorite' %}selected{% endif %}>⭐ Favorite</option>
+            </select>
+          </td>
+
+          <!-- Read Time -->
+          <td class="py-3 px-3 text-slate-500 whitespace-nowrap">
+            {{ item.reading_time_minutes }}m
+          </td>
+
+          <!-- Date Added -->
+          <td class="py-3 px-3 text-slate-500 whitespace-nowrap font-mono text-[11px]">
+            {{ item.created_at[:10] }}
+          </td>
+
+          <!-- Actions -->
+          <td class="py-3 px-3 text-right whitespace-nowrap">
+            <div class="flex items-center justify-end space-x-1 text-slate-400">
+              <a href="{{ item.url }}" target="_blank" rel="noopener noreferrer" class="p-1 hover:text-slate-700 dark:hover:text-slate-200" title="Open URL">
+                <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+              </a>
+              <button onclick="deleteLink('{{ item.id }}', '{{ item.title|replace('\'', '\\\'') }}')" class="p-1 hover:text-red-600" title="Delete">
+                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          </td>
+
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  {% if total_pages > 1 %}
+  <div class="flex items-center justify-center space-x-2 pt-4">
+    {% if page > 1 %}
+    <a href="/list?page={{ page - 1 }}" class="px-3 py-1 text-xs rounded border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800">Previous</a>
+    {% endif %}
+    <span class="text-xs text-slate-500">Page {{ page }} of {{ total_pages }}</span>
+    {% if page < total_pages %}
+    <a href="/list?page={{ page + 1 }}" class="px-3 py-1 text-xs rounded border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800">Next</a>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {% else %}
+  <div class="text-center py-16 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-8 text-slate-500">
+    <p>No records found.</p>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

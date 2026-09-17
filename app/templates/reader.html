@@ -1,0 +1,422 @@
+{% extends "base.html" %}
+
+{% block title %}{{ link.title }} — Reader{% endblock %}
+
+{% block content %}
+<!-- Reading Progress Bar -->
+<div id="reading-progress" class="fixed top-16 left-0 h-1 bg-blue-600 z-40 transition-all duration-75" style="width: 0%"></div>
+
+<!-- Floating Text Selection Tooltip -->
+<div id="selection-tooltip" class="fixed hidden z-50 bg-slate-900 text-white rounded-lg shadow-xl px-2.5 py-1.5 text-xs items-center space-x-2 border border-slate-700 animate-in fade-in zoom-in-95 duration-100">
+  <button onclick="saveSelectedHighlight()" class="hover:text-amber-300 font-semibold flex items-center text-amber-400">
+    <i data-lucide="highlighter" class="w-3.5 h-3.5 mr-1"></i> Highlight &amp; Save
+  </button>
+</div>
+
+<div class="max-w-4xl mx-auto py-2">
+
+  <!-- Reader Floating Controls Bar -->
+  <div class="flex flex-wrap items-center justify-between gap-3 p-3 mb-6 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+    
+    <div class="flex items-center space-x-3">
+      <a href="/" class="inline-flex items-center text-xs font-medium text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition">
+        <i data-lucide="arrow-left" class="w-4 h-4 mr-1"></i> Back
+      </a>
+      <span class="text-slate-300 dark:text-slate-700">|</span>
+      <!-- Status changer -->
+      <select 
+        onchange="updateLinkStatus('{{ link.id }}', this.value)"
+        class="text-xs font-medium py-1 px-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200"
+      >
+        <option value="inbox" {% if link.status.value == 'inbox' %}selected{% endif %}>📥 Inbox</option>
+        <option value="reading" {% if link.status.value == 'reading' %}selected{% endif %}>📖 Reading</option>
+        <option value="archived" {% if link.status.value == 'archived' %}selected{% endif %}>📦 Archived</option>
+        <option value="favorite" {% if link.status.value == 'favorite' %}selected{% endif %}>⭐ Favorite</option>
+      </select>
+    </div>
+
+    <!-- Reading & Typography Controls -->
+    <div class="flex items-center space-x-2 text-xs">
+      
+      <!-- Audio / TTS Button -->
+      <button onclick="toggleSpeech()" id="speech-btn" class="inline-flex items-center px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+        <i data-lucide="volume-2" id="speech-icon" class="w-3.5 h-3.5 mr-1"></i>
+        <span id="speech-text">Listen</span>
+      </button>
+
+      <!-- Font family toggle -->
+      <div class="inline-flex rounded-lg border border-slate-200 dark:border-slate-700 p-0.5 bg-slate-50 dark:bg-slate-800">
+        <button onclick="setReaderFont('sans')" id="font-sans-btn" class="px-2 py-0.5 rounded font-sans font-medium text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700">Sans</button>
+        <button onclick="setReaderFont('serif')" id="font-serif-btn" class="px-2 py-0.5 rounded font-serif font-medium text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700">Serif</button>
+      </div>
+
+      <!-- Font size buttons -->
+      <div class="inline-flex rounded-lg border border-slate-200 dark:border-slate-700 p-0.5 bg-slate-50 dark:bg-slate-800">
+        <button onclick="adjustReaderFontSize(-1)" class="px-2 py-0.5 hover:bg-white dark:hover:bg-slate-700 rounded font-bold" title="Decrease font size">A-</button>
+        <button onclick="adjustReaderFontSize(1)" class="px-2 py-0.5 hover:bg-white dark:hover:bg-slate-700 rounded font-bold" title="Increase font size">A+</button>
+      </div>
+
+      <!-- Color scheme toggle (Auto / Sepia / OLED) -->
+      <div class="inline-flex rounded-lg border border-slate-200 dark:border-slate-700 p-0.5 bg-slate-50 dark:bg-slate-800" title="Reading Color Scheme">
+        <button onclick="setReaderTheme('default')" id="theme-default-btn" class="px-2 py-0.5 rounded text-[11px] font-medium text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700">Auto</button>
+        <button onclick="setReaderTheme('sepia')" id="theme-sepia-btn" class="px-2 py-0.5 rounded text-[11px] font-medium bg-[#f5ebd7] text-[#5c4b37] hover:brightness-95">Sepia</button>
+        <button onclick="setReaderTheme('oled')" id="theme-oled-btn" class="px-2 py-0.5 rounded text-[11px] font-medium bg-black text-white hover:bg-slate-900">OLED</button>
+      </div>
+
+      <span class="text-slate-300 dark:text-slate-700">|</span>
+
+      <!-- Offline Snapshot button if available -->
+      {% if link.offline_snapshot_path %}
+      <a href="/snapshot/{{ link.id }}" target="_blank" class="inline-flex items-center px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 transition font-medium" title="View preserved raw HTML snapshot">
+        <i data-lucide="file-check" class="w-3.5 h-3.5 mr-1"></i> Snapshot
+      </a>
+      {% endif %}
+
+      <!-- Open external -->
+      <a href="{{ link.url }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-2.5 py-1 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-100 transition font-medium">
+        <i data-lucide="external-link" class="w-3.5 h-3.5 mr-1"></i> Original
+      </a>
+
+    </div>
+
+  </div>
+
+  <!-- Reader Document Container -->
+  <article id="reader-container" class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm p-6 sm:p-12 transition-all duration-150">
+    
+    <!-- Header Meta -->
+    <header class="border-b border-slate-200 dark:border-slate-800 pb-6 mb-8">
+      
+      <div class="flex items-center space-x-2 text-xs text-slate-500 dark:text-slate-400 mb-3">
+        {% if link.favicon %}
+        <img src="{{ link.favicon }}" alt="" class="w-4 h-4 rounded" onerror="this.style.display='none'" />
+        {% endif %}
+        <span class="font-semibold text-slate-700 dark:text-slate-300">{{ link.site_name or link.domain }}</span>
+        <span>•</span>
+        <span>{{ link.created_at[:10] }}</span>
+        <span>•</span>
+        <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 font-medium text-[11px]">
+          <i data-lucide="clock" class="w-3 h-3 mr-1 inline"></i> {{ link.reading_time_minutes }} min read ({{ "{:,}".format(link.word_count) }} words)
+        </span>
+        <span>•</span>
+        <span class="font-mono uppercase text-[10px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+          {{ link.entry_type.value }}
+        </span>
+      </div>
+
+      <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white leading-tight mb-4">
+        {{ link.title }}
+      </h1>
+
+      {% if link.author %}
+      <p class="text-sm text-slate-600 dark:text-slate-400 mb-3">
+        By <span class="font-medium text-slate-800 dark:text-slate-200">{{ link.author }}</span>
+      </p>
+      {% endif %}
+
+      <!-- Tags -->
+      {% if link.tags %}
+      <div class="flex flex-wrap gap-1.5 pt-2">
+        {% for t in link.tags %}
+        <a href="/?tag={{ t }}" class="text-xs font-mono px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 hover:text-blue-600 transition">
+          #{{ t }}
+        </a>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+    </header>
+
+    <!-- ── Media Specialized Embeds ── -->
+    
+    <!-- A. YouTube Embed -->
+    {% if link.media_meta.get('youtube_id') %}
+    <div class="mb-8 aspect-video rounded-xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-800">
+      <iframe 
+        class="w-full h-full" 
+        src="https://www.youtube-nocookie.com/embed/{{ link.media_meta.youtube_id }}" 
+        title="{{ link.title }}" 
+        frameborder="0" 
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+        allowfullscreen>
+      </iframe>
+    </div>
+    {% endif %}
+
+    <!-- B. GitHub Repo Badge Bar -->
+    {% if link.media_meta.get('github') %}
+    {% set gh = link.media_meta.github %}
+    <div class="mb-8 p-4 rounded-xl bg-slate-900 text-white border border-slate-800 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center space-x-3">
+        <i data-lucide="github" class="w-6 h-6 text-white"></i>
+        <div>
+          <span class="font-bold text-sm">{{ gh.get('repo_name') }}</span>
+          <span class="text-xs text-slate-400 block">{{ gh.get('language') or 'Open Source' }} • {{ gh.get('license') or 'No license specified' }}</span>
+        </div>
+      </div>
+      <div class="flex items-center space-x-4 text-xs font-mono">
+        <span class="inline-flex items-center text-amber-300">
+          ⭐ {{ "{:,}".format(gh.get('stars', 0)) }} stars
+        </span>
+        <span class="inline-flex items-center text-slate-300">
+          🍴 {{ "{:,}".format(gh.get('forks', 0)) }} forks
+        </span>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- C. ArXiv Paper Bar -->
+    {% if link.media_meta.get('arxiv_id') %}
+    <div class="mb-8 p-4 rounded-xl bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 flex items-center justify-between">
+      <div class="flex items-center space-x-2.5">
+        <i data-lucide="file-text" class="w-5 h-5 text-amber-600 dark:text-amber-400"></i>
+        <div>
+          <span class="font-bold text-xs uppercase tracking-wider text-amber-900 dark:text-amber-200">ArXiv Paper ({{ link.media_meta.arxiv_id }})</span>
+          <p class="text-xs text-amber-800 dark:text-amber-300">Scientific publication archived with abstract and metadata</p>
+        </div>
+      </div>
+      <a href="{{ link.media_meta.pdf_url }}" target="_blank" class="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs transition inline-flex items-center">
+        <i data-lucide="download" class="w-3.5 h-3.5 mr-1.5"></i> Download PDF
+      </a>
+    </div>
+    {% endif %}
+
+    <!-- Summary Box -->
+    {% if link.summary %}
+    <div class="mb-8 p-4 rounded-xl bg-blue-50/70 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/50">
+      <div class="flex items-center space-x-2 text-blue-700 dark:text-blue-300 font-semibold text-xs uppercase tracking-wider mb-1.5">
+        <i data-lucide="sparkles" class="w-4 h-4"></i>
+        <span>Summary &amp; Key Takeaways</span>
+      </div>
+      <p class="text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+        {{ link.summary }}
+      </p>
+    </div>
+    {% endif %}
+
+    <!-- Highlights & Quotes Section -->
+    <div id="highlights-section" class="mb-8 p-4 rounded-xl bg-amber-50/40 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-900/40 {% if not link.highlights %}hidden{% endif %}">
+      <div class="flex items-center justify-between mb-3">
+        <span class="text-xs font-semibold uppercase tracking-wider text-amber-800 dark:text-amber-300 flex items-center">
+          <i data-lucide="highlighter" class="w-3.5 h-3.5 mr-1.5"></i> Highlights &amp; Saved Quotes (<span id="highlights-count">{{ link.highlights|length }}</span>)
+        </span>
+      </div>
+      <div id="highlights-list" class="space-y-2.5">
+        {% for hl in link.highlights %}
+        <div id="hl-card-{{ hl.id }}" class="p-3 bg-white dark:bg-slate-800/80 rounded-lg border border-amber-200/40 dark:border-amber-900/40 text-xs shadow-sm flex items-start justify-between gap-3">
+          <div class="flex-1">
+            <blockquote class="italic text-slate-800 dark:text-slate-200 border-l-2 border-amber-400 pl-2.5 mb-1 font-serif">
+              "{{ hl.text }}"
+            </blockquote>
+            {% if hl.note %}
+            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Note: {{ hl.note }}</p>
+            {% endif %}
+            <span class="text-[10px] text-slate-400">{{ hl.created_at[:10] }}</span>
+          </div>
+          <button onclick="removeHighlight('{{ link.id }}', '{{ hl.id }}')" class="text-slate-400 hover:text-red-500 transition p-1" title="Delete highlight">
+            <i data-lucide="x" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Personal Notes Section -->
+    <div class="mb-8 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 flex items-center">
+          <i data-lucide="pen-tool" class="w-3.5 h-3.5 mr-1.5"></i> Personal Notes &amp; Thoughts
+        </span>
+        <button onclick="saveNotes('{{ link.id }}')" id="save-notes-btn" class="px-2.5 py-1 text-xs font-semibold rounded bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-blue-600 hover:text-white transition">
+          Save Notes
+        </button>
+      </div>
+      <textarea 
+        id="notes-textarea" 
+        rows="3" 
+        placeholder="Add your reflections, quotes, or notes here..." 
+        class="w-full text-xs p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:ring-1 focus:ring-blue-500"
+      >{{ link.user_notes or '' }}</textarea>
+    </div>
+
+    <!-- Main Markdown Rendered Article Body -->
+    <div id="reader-body" class="reader-content text-slate-800 dark:text-slate-200">
+      {{ rendered_html | safe }}
+    </div>
+
+  </article>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const linkId = "{{ link.id }}";
+  let currentFontSize = 18;
+  const bodyEl = document.getElementById('reader-body');
+  const tooltip = document.getElementById('selection-tooltip');
+  let selectedRangeText = '';
+
+  // 1. Typography controls
+  function setReaderFont(fontFamily) {
+    if (fontFamily === 'serif') {
+      bodyEl.style.fontFamily = "var(--font-serif)";
+      localStorage.setItem('hlib_reader_font', 'serif');
+    } else {
+      bodyEl.style.fontFamily = "var(--font-sans)";
+      localStorage.setItem('hlib_reader_font', 'sans');
+    }
+  }
+
+  function adjustReaderFontSize(delta) {
+    currentFontSize = Math.min(26, Math.max(14, currentFontSize + delta * 2));
+    bodyEl.style.fontSize = `${currentFontSize}px`;
+    localStorage.setItem('hlib_reader_size', currentFontSize);
+  }
+
+  const savedFont = localStorage.getItem('hlib_reader_font');
+  if (savedFont) setReaderFont(savedFont);
+
+  const savedSize = localStorage.getItem('hlib_reader_size');
+  if (savedSize) {
+    currentFontSize = parseInt(savedSize, 10);
+    bodyEl.style.fontSize = `${currentFontSize}px`;
+  }
+
+  // Reader Theme (Default, Sepia, OLED)
+  function setReaderTheme(theme) {
+    document.body.classList.remove('reader-theme-sepia', 'reader-theme-oled');
+    if (theme === 'sepia') {
+      document.body.classList.add('reader-theme-sepia');
+    } else if (theme === 'oled') {
+      document.body.classList.add('reader-theme-oled');
+    }
+    localStorage.setItem('hlib_reader_theme', theme);
+  }
+
+  const savedReaderTheme = localStorage.getItem('hlib_reader_theme');
+  if (savedReaderTheme) setReaderTheme(savedReaderTheme);
+
+  // 2. Reading progress indicator
+  window.addEventListener('scroll', () => {
+    const docEl = document.documentElement;
+    const scrollTop = docEl.scrollTop || document.body.scrollTop;
+    const scrollHeight = docEl.scrollHeight - docEl.clientHeight;
+    const progress = (scrollTop / (scrollHeight || 1)) * 100;
+    const progressEl = document.getElementById('reading-progress');
+    if (progressEl) progressEl.style.width = `${Math.min(100, Math.max(0, progress))}%`;
+  });
+
+  // 3. Text Selection & Highlighting
+  document.addEventListener('selectionchange', () => {
+    const selection = window.getSelection();
+    const text = selection.toString().trim();
+    if (text.length > 5 && bodyEl.contains(selection.anchorNode)) {
+      selectedRangeText = text;
+      const range = selection.getRangeAt(0);
+      const rect = range.getBoundingClientRect();
+      tooltip.style.left = `${rect.left + window.scrollX + (rect.width / 2) - 60}px`;
+      tooltip.style.top = `${rect.top + window.scrollY - 38}px`;
+      tooltip.classList.remove('hidden');
+      tooltip.classList.add('flex');
+    } else {
+      setTimeout(() => {
+        if (!window.getSelection().toString().trim()) {
+          tooltip.classList.add('hidden');
+          tooltip.classList.remove('flex');
+        }
+      }, 200);
+    }
+  });
+
+  async function saveSelectedHighlight() {
+    if (!selectedRangeText) return;
+    tooltip.classList.add('hidden');
+    tooltip.classList.remove('flex');
+
+    try {
+      const res = await fetch(`/api/links/${linkId}/highlights`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ text: selectedRangeText })
+      });
+
+      if (!res.ok) throw new Error('Highlight save failed');
+      const updated = await res.json();
+      window.location.reload();
+    } catch (e) {
+      alert('Error saving highlight: ' + e.message);
+    }
+  }
+
+  async function removeHighlight(linkId, hlId) {
+    try {
+      const res = await fetch(`/api/links/${linkId}/highlights/${hlId}`, { 
+        method: 'DELETE',
+        headers: getAuthHeaders(),
+      });
+      if (!res.ok) throw new Error('Delete highlight failed');
+      const card = document.getElementById(`hl-card-${hlId}`);
+      if (card) card.remove();
+      const countEl = document.getElementById('highlights-count');
+      if (countEl) countEl.textContent = parseInt(countEl.textContent || '1') - 1;
+    } catch (e) {
+      alert('Error removing highlight: ' + e.message);
+    }
+  }
+
+  // 4. Web Speech API (Audio Text-to-Speech)
+  let isSpeaking = false;
+  let synth = window.speechSynthesis;
+  let utterThis = null;
+
+  function toggleSpeech() {
+    if (!synth) {
+      alert('Text-to-speech is not supported by your browser.');
+      return;
+    }
+
+    if (isSpeaking) {
+      synth.cancel();
+      isSpeaking = false;
+      document.getElementById('speech-text').textContent = 'Listen';
+      return;
+    }
+
+    const textToRead = document.getElementById('reader-body').innerText;
+    utterThis = new SpeechSynthesisUtterance(textToRead);
+    utterThis.rate = 1.0;
+
+    utterThis.onend = () => {
+      isSpeaking = false;
+      document.getElementById('speech-text').textContent = 'Listen';
+    };
+
+    synth.speak(utterThis);
+    isSpeaking = true;
+    document.getElementById('speech-text').textContent = 'Stop';
+  }
+
+  // 5. Save Notes
+  async function saveNotes(linkId) {
+    const notes = document.getElementById('notes-textarea').value;
+    const btn = document.getElementById('save-notes-btn');
+    btn.disabled = true;
+    btn.textContent = 'Saving...';
+    try {
+      const res = await fetch(`/api/links/${linkId}`, {
+        method: 'PATCH',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ user_notes: notes }),
+      });
+      if (!res.ok) throw new Error('Save failed');
+      btn.textContent = 'Saved!';
+      setTimeout(() => { btn.textContent = 'Save Notes'; btn.disabled = false; }, 1500);
+    } catch (e) {
+      alert('Failed to save notes: ' + e.message);
+      btn.textContent = 'Save Notes';
+      btn.disabled = false;
+    }
+  }
+</script>
+{% endblock %}
